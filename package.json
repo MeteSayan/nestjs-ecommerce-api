@@ -5,6 +5,10 @@
   "author": "Mete Sayan",
   "private": true,
   "license": "MIT",
+  "repository": {
+		"type": "git",
+		"url": "https://github.com/MeteSayan/nestjs-ecommerce-api.git"
+	},
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
