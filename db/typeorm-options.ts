@@ -15,7 +15,7 @@ export const dbConfig: TypeOrmModuleOptions = {
   username: username,
   password: password,
   database: dbName,
-  entities: [],
+  entities: ['dist/**/*.entity{.ts,.js}'],
   synchronize: true,
   namingStrategy: new SnakeNamingStrategy(),
   keepConnectionAlive: true,
