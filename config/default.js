@@ -10,7 +10,7 @@ module.exports = {
       dbName: 'nestjs_ecommerce_api',
       dbPort: 5432,
       dbUser: 'postgres',
-      dbPass: '',
+      dbPass: 'postgres',
     },
   };
   
