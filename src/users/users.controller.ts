@@ -16,7 +16,7 @@ import { UserEntity } from './entities/user.entity';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
+  @Post('signup')
   async signUp(@Body() userSignUpDto: UserSignUpDto): Promise<UserEntity> {
     return await this.usersService.signUp(userSignUpDto);
   }
