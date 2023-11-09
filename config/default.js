@@ -12,5 +12,9 @@ module.exports = {
       dbUser: 'postgres',
       dbPass: 'postgres',
     },
+    JWTConfig: {
+      secretKey: '5uIxUk8SEmpo7fnZ153wV9tZycN3Ika9',
+      expireTime: '2h'
+    },
   };
   
