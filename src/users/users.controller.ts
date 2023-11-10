@@ -4,10 +4,25 @@ import { UserSignUpDto } from './dto/user-sign-up.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entities/user.entity';
 import { UserSignInDto } from './dto/user-sign-in.dto';
+import { CurrentUser } from 'src/utils/decorators/current-user.decorator';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @ApiBearerAuth()
+  @Get()
+  async findAll(): Promise<UserEntity[]> {
+    return await this.usersService.findAll();
+  }
+
+  @ApiBearerAuth()
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<UserEntity> {
+    return await this.usersService.findOne(+id);
+  }
 
   @Post('signup')
   async signUp(@Body() userSignUpDto: UserSignUpDto): Promise<UserEntity> {
@@ -25,21 +40,13 @@ export class UsersController {
     return { accessToken, user };
   }
 
-  @Get()
-  async findAll(): Promise<UserEntity[]> {
-    return await this.usersService.findAll();
-  }
-
-  @Get(':id')
-  async findOne(@Param('id') id: string): Promise<UserEntity> {
-    return await this.usersService.findOne(+id);
-  }
-
+  @ApiBearerAuth()
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(+id, updateUserDto);
   }
 
+  @ApiBearerAuth()
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
