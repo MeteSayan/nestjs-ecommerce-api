@@ -26,6 +26,13 @@ export class UsersController {
 
   @UseGuards(AuthenticationGuard)
   @ApiBearerAuth()
+  @Get('me')
+  async getCurrentUser(@CurrentUser() currentUser: UserEntity): Promise<UserEntity> {
+    return currentUser;
+  }
+
+  @UseGuards(AuthenticationGuard)
+  @ApiBearerAuth()
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<UserEntity> {
     return await this.usersService.findOne(+id);
