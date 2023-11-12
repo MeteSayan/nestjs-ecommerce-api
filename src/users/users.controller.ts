@@ -7,7 +7,6 @@ import { UserSignInDto } from './dto/user-sign-in.dto';
 import { CurrentUser } from 'src/utils/decorators/current-user.decorator';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthenticationGuard } from 'src/utils/guards/authentication.guard';
-import { AuthorizeRoles } from 'src/utils/decorators/authorize-roles.decorator';
 import { Roles } from 'src/utils/common/user-roles.enum';
 import { AuthorizationGuard } from 'src/utils/guards/authorization.guard';
 
@@ -16,8 +15,7 @@ import { AuthorizationGuard } from 'src/utils/guards/authorization.guard';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @AuthorizeRoles(Roles.ADMIN)
-  @UseGuards(AuthenticationGuard, AuthorizationGuard)
+  @UseGuards(AuthenticationGuard, AuthorizationGuard([Roles.ADMIN]))
   @ApiBearerAuth()
   @Get()
   async findAll(): Promise<UserEntity[]> {
