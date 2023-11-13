@@ -8,6 +8,7 @@ import { compare, hash } from 'bcrypt';
 import { UserSignInDto } from './dto/user-sign-in.dto';
 import { sign } from 'jsonwebtoken';
 import * as config from 'config';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 const jwtSecretKey = config.get('JWTConfig.secretKey') as string;
 const jwtExpireTime = config.get('JWTConfig.expireTime') as string;
@@ -59,12 +60,37 @@ export class UsersService {
     return userExists;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async updateMe(currentUser: UserEntity, updateUserDto: UpdateUserDto) {
+    const user = await this.userRepository.findOneBy({ id: currentUser.id });
+
+    user.name = updateUserDto.name;
+    user.email = updateUserDto.email;
+
+    return await this.userRepository.save(user);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async updateMePassword(currentUser: UserEntity, updatePasswordDto: UpdatePasswordDto) {
+    const user = await this.userRepository.findOneBy({ id: currentUser.id });
+    user.password = await hash(updatePasswordDto.password, 10);
+
+    return await this.userRepository.save(user);
+  }
+
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    const user = await this.userRepository.findOneBy({ id: id });
+    if (!user) throw new NotFoundException('User Not Found!');
+
+    user.name = updateUserDto.name;
+    user.email = updateUserDto.email;
+
+    return await this.userRepository.save(user);
+  }
+
+  async remove(id: number) {
+    const userExists = await this.userRepository.findOneBy({ id: id });
+    if (!userExists) throw new NotFoundException('User Not Found!');
+
+    return this.userRepository.remove(userExists);
   }
 
   async accessToken(user: UserEntity): Promise<string> {

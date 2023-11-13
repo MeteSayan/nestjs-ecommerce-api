@@ -9,6 +9,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthenticationGuard } from 'src/utils/guards/authentication.guard';
 import { Roles } from 'src/utils/common/user-roles.enum';
 import { AuthorizationGuard } from 'src/utils/guards/authorization.guard';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -54,15 +55,32 @@ export class UsersController {
 
   @UseGuards(AuthenticationGuard)
   @ApiBearerAuth()
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  @Patch('me')
+  async updateMe(@CurrentUser() currentUser: UserEntity, @Body() updateUserDto: UpdateUserDto) {
+    return await this.usersService.updateMe(currentUser, updateUserDto);
   }
 
   @UseGuards(AuthenticationGuard)
   @ApiBearerAuth()
+  @Patch('me/password')
+  async updateMePassword(
+    @CurrentUser() currentUser: UserEntity,
+    @Body() updatePasswordDto: UpdatePasswordDto,
+  ) {
+    return await this.usersService.updateMePassword(currentUser, updatePasswordDto);
+  }
+
+  @UseGuards(AuthenticationGuard, AuthorizationGuard([Roles.ADMIN]))
+  @ApiBearerAuth()
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return await this.usersService.update(+id, updateUserDto);
+  }
+
+  @UseGuards(AuthenticationGuard, AuthorizationGuard([Roles.ADMIN]))
+  @ApiBearerAuth()
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  async remove(@Param('id') id: string) {
+    return await this.usersService.remove(+id);
   }
 }
