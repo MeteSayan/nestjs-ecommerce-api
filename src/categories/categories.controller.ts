@@ -34,13 +34,20 @@ export class CategoriesController {
     return await this.categoriesService.findOne(+id);
   }
 
+  @UseGuards(AuthenticationGuard, AuthorizationGuard([Roles.ADMIN]))
+  @ApiBearerAuth()
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
-    return this.categoriesService.update(+id, updateCategoryDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updateCategoryDto: UpdateCategoryDto,
+  ): Promise<CategoryEntity> {
+    return await this.categoriesService.update(+id, updateCategoryDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.categoriesService.remove(+id);
-  }
+  // @UseGuards(AuthenticationGuard, AuthorizationGuard([Roles.ADMIN]))
+  // @ApiBearerAuth()
+  // @Delete(':id')
+  // async remove(@Param('id') id: string) {
+  //   return await this.categoriesService.remove(+id);
+  // }
 }
