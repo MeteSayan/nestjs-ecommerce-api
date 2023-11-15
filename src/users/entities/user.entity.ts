@@ -9,6 +9,7 @@ import {
   Timestamp,
   UpdateDateColumn,
 } from 'typeorm';
+import { ProductEntity } from 'src/products/entities/product.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -35,4 +36,7 @@ export class UserEntity {
 
   @OneToMany(() => CategoryEntity, (cat) => cat.createdBy)
   categories: CategoryEntity[];
+
+  @OneToMany(() => ProductEntity, (prod) => prod.createdBy)
+  products: ProductEntity[];
 }
