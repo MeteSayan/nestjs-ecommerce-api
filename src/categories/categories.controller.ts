@@ -8,6 +8,7 @@ import { AuthenticationGuard } from 'src/utils/guards/authentication.guard';
 import { AuthorizationGuard } from 'src/utils/guards/authorization.guard';
 import { Roles } from 'src/utils/common/user-roles.enum';
 import { CategoryEntity } from './entities/category.entity';
+import { UserEntity } from 'src/users/entities/user.entity';
 
 @ApiTags('categories')
 @Controller('categories')
@@ -19,7 +20,7 @@ export class CategoriesController {
   @Post()
   async create(
     @Body() createCategoryDto: CreateCategoryDto,
-    @CurrentUser() currentUser,
+    @CurrentUser() currentUser: UserEntity,
   ): Promise<CategoryEntity> {
     return await this.categoriesService.create(createCategoryDto, currentUser);
   }

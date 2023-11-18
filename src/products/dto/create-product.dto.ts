@@ -61,12 +61,12 @@ export class CreateProductDto {
   })
   images: string[];
 
-  @IsNotEmpty({ message: 'Category can not be empty!' })
+  @IsNotEmpty({ message: 'Category Id can not be empty!' })
   @IsNumber({ allowNaN: false, allowInfinity: false })
-  @Min(0, { message: 'Category can not be negative!' })
+  @Min(0, { message: 'Category Id can not be negative!' })
   @ApiProperty({
     type: Number,
     description: 'This is a required property',
   })
-  category: number;
+  categoryId: number;
 }
