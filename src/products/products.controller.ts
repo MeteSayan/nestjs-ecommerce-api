@@ -26,13 +26,13 @@ export class ProductsController {
   }
 
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  async findAll(): Promise<ProductEntity[]> {
+    return await this.productsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(+id);
+  async findOne(@Param('id') id: string): Promise<ProductEntity> {
+    return await this.productsService.findOne(+id);
   }
 
   @Patch(':id')

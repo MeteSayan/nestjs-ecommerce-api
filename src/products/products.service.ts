@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductEntity } from './entities/product.entity';
@@ -27,12 +27,30 @@ export class ProductsService {
     return await this.productRepository.save(product);
   }
 
-  findAll() {
-    return `This action returns all products`;
+  async findAll(): Promise<ProductEntity[]> {
+    return await this.productRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(id: number): Promise<ProductEntity> {
+    const product = await this.productRepository.findOne({
+      where: { id: id },
+      relations: { createdBy: true, category: true },
+      select: {
+        createdBy: {
+          id: true,
+          name: true,
+          email: true,
+        },
+        category: {
+          id: true,
+          title: true,
+          description: true,
+        },
+      },
+    });
+
+    if (!product) throw new NotFoundException('Product Not Found!');
+    return product;
   }
 
   update(id: number, updateProductDto: UpdateProductDto) {
