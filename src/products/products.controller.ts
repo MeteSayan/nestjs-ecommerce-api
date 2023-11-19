@@ -35,9 +35,15 @@ export class ProductsController {
     return await this.productsService.findOne(+id);
   }
 
+  @UseGuards(AuthenticationGuard, AuthorizationGuard([Roles.ADMIN]))
+  @ApiBearerAuth()
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productsService.update(+id, updateProductDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updateProductDto: UpdateProductDto,
+    @CurrentUser() currentUser: UserEntity,
+  ): Promise<ProductEntity> {
+    return await this.productsService.update(+id, updateProductDto, currentUser);
   }
 
   @Delete(':id')

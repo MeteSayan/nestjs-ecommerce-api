@@ -53,8 +53,21 @@ export class ProductsService {
     return product;
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(
+    id: number,
+    updateProductDto: Partial<UpdateProductDto>,
+    currentUser: UserEntity,
+  ): Promise<ProductEntity> {
+    const product = await this.findOne(id);
+    Object.assign(product, updateProductDto);
+    product.createdBy = currentUser;
+
+    if (updateProductDto.categoryId) {
+      const category = await this.categoriesService.findOne(+updateProductDto.categoryId);
+      product.category = category;
+    }
+
+    return await this.productRepository.save(product);
   }
 
   remove(id: number) {
