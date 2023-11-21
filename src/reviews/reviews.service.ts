@@ -64,7 +64,7 @@ export class ReviewsService {
 
   async remove(id: number, currentUser: UserEntity) {
     const review = await this.findOne(id);
-    if (currentUser.id === review.createdBy.id || currentUser.roles.includes[Roles.ADMIN]) {
+    if (currentUser.id === review.createdBy.id || currentUser.roles.includes(Roles.ADMIN)) {
       return this.reviewRepository.remove(review);
     } else {
       throw new UnauthorizedException('You are not authorized for this action!');
