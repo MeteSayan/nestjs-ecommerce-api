@@ -33,9 +33,9 @@ export class ReviewsController {
     return await this.reviewsService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateReviewDto: UpdateReviewDto) {
-    return this.reviewsService.update(+id, updateReviewDto);
+  @Get('product/:id')
+  async findAllByProduct(@Param('id') id: string): Promise<ReviewEntity[]> {
+    return await this.reviewsService.findAllByProduct(+id);
   }
 
   @Delete(':id')

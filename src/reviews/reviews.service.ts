@@ -33,6 +33,18 @@ export class ReviewsService {
     return await this.reviewRepository.find();
   }
 
+  async findAllByProduct(id: number): Promise<ReviewEntity[]> {
+    return await this.reviewRepository.find({
+      where: { product: { id: id } },
+      relations: {
+        createdBy: true,
+        product: {
+          category: true,
+        },
+      },
+    });
+  }
+
   async findOne(id: number): Promise<ReviewEntity> {
     const review = await this.reviewRepository.findOne({
       where: { id: id },
@@ -40,10 +52,6 @@ export class ReviewsService {
     });
     if (!review) throw new NotFoundException('Review Not Found!');
     return review;
-  }
-
-  update(id: number, updateReviewDto: UpdateReviewDto) {
-    return `This action updates a #${id} review`;
   }
 
   remove(id: number) {
