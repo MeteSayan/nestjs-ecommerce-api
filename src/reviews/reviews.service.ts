@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,6 +6,7 @@ import { ReviewEntity } from './entities/review.entity';
 import { Repository } from 'typeorm';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { ProductsService } from 'src/products/products.service';
+import { Roles } from 'src/utils/common/user-roles.enum';
 
 @Injectable()
 export class ReviewsService {
@@ -54,8 +55,13 @@ export class ReviewsService {
     return review;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} review`;
+  async remove(id: number, currentUser: UserEntity) {
+    const review = await this.findOne(id);
+    if (currentUser.id === review.createdBy.id || currentUser.roles.includes[Roles.ADMIN]) {
+      return this.reviewRepository.remove(review);
+    } else {
+      throw new UnauthorizedException('You are not authorized for this action!');
+    }
   }
 
   async findOneByUserAndProduct(userId: number, productId: number) {

@@ -38,8 +38,10 @@ export class ReviewsController {
     return await this.reviewsService.findAllByProduct(+id);
   }
 
+  @UseGuards(AuthenticationGuard)
+  @ApiBearerAuth()
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.reviewsService.remove(+id);
+  async remove(@Param('id') id: string, @CurrentUser() currentUser: UserEntity) {
+    return await this.reviewsService.remove(+id, currentUser);
   }
 }
