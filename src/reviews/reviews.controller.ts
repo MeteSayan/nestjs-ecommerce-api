@@ -1,18 +1,26 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ReviewEntity } from './entities/review.entity';
+import { AuthenticationGuard } from 'src/utils/guards/authentication.guard';
+import { CurrentUser } from 'src/utils/decorators/current-user.decorator';
+import { UserEntity } from 'src/users/entities/user.entity';
 
 @ApiTags('reviews')
 @Controller('reviews')
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
+  @UseGuards(AuthenticationGuard)
+  @ApiBearerAuth()
   @Post()
-  create(@Body() createReviewDto: CreateReviewDto) {
-    return this.reviewsService.create(createReviewDto);
+  async create(
+    @Body() createReviewDto: CreateReviewDto,
+    @CurrentUser() currentUser: UserEntity,
+  ): Promise<ReviewEntity> {
+    return await this.reviewsService.create(createReviewDto, currentUser);
   }
 
   @Get()

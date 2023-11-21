@@ -4,16 +4,29 @@ import { UpdateReviewDto } from './dto/update-review.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ReviewEntity } from './entities/review.entity';
 import { Repository } from 'typeorm';
+import { UserEntity } from 'src/users/entities/user.entity';
+import { ProductsService } from 'src/products/products.service';
 
 @Injectable()
 export class ReviewsService {
   constructor(
     @InjectRepository(ReviewEntity)
     private reviewRepository: Repository<ReviewEntity>,
+    private productService: ProductsService,
   ) {}
 
-  create(createReviewDto: CreateReviewDto) {
-    return 'This action adds a new review';
+  async create(createReviewDto: CreateReviewDto, currentUser: UserEntity): Promise<ReviewEntity> {
+    const product = await this.productService.findOne(createReviewDto.productId);
+    let review = await this.findOneByUserAndProduct(currentUser.id, createReviewDto.productId);
+    if (!review) {
+      review = this.reviewRepository.create(createReviewDto);
+      review.createdBy = currentUser;
+      review.product = product;
+    } else {
+      review.comment = createReviewDto.comment;
+      review.rating = createReviewDto.rating;
+    }
+    return await this.reviewRepository.save(review);
   }
 
   async findAll(): Promise<ReviewEntity[]> {
@@ -35,5 +48,24 @@ export class ReviewsService {
 
   remove(id: number) {
     return `This action removes a #${id} review`;
+  }
+
+  async findOneByUserAndProduct(userId: number, productId: number) {
+    return await this.reviewRepository.findOne({
+      where: {
+        createdBy: {
+          id: userId,
+        },
+        product: {
+          id: productId,
+        },
+      },
+      relations: {
+        createdBy: true,
+        product: {
+          category: true,
+        },
+      },
+    });
   }
 }
