@@ -51,6 +51,7 @@ export class OrdersController {
   }
 
   @UseGuards(AuthenticationGuard, AuthorizationGuard([Roles.ADMIN]))
+  @ApiBearerAuth()
   @Put(':id')
   async update(
     @Param('id') id: string,
@@ -61,6 +62,7 @@ export class OrdersController {
   }
 
   @UseGuards(AuthenticationGuard, AuthorizationGuard([Roles.ADMIN]))
+  @ApiBearerAuth()
   @Put('cancel/:id')
   async cancelOrder(@Param('id') id: string, @CurrentUser() currentUser: UserEntity) {
     return await this.ordersService.cancelOrder(+id, currentUser);
