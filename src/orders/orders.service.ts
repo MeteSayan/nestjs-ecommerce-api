@@ -55,11 +55,32 @@ export class OrdersService {
     return await this.findOne(orderReturn.id);
   }
 
-  findAll() {
-    return `This action returns all orders`;
+  async findAll(): Promise<OrderEntity[]> {
+    return await this.ordersRepository.find({
+      relations: {
+        shippingAddress: true,
+        createdBy: true,
+        products: { product: true },
+      },
+    });
   }
 
-  async findOne(id: number) {
+  async findAllByUserId(currentUser: UserEntity): Promise<OrderEntity[]> {
+    return await this.ordersRepository.find({
+      where: {
+        createdBy: {
+          id: currentUser.id,
+        },
+      },
+      relations: {
+        shippingAddress: true,
+        createdBy: true,
+        products: { product: true },
+      },
+    });
+  }
+
+  async findOne(id: number): Promise<OrderEntity> {
     return await this.ordersRepository.findOne({
       where: { id: id },
       relations: {
