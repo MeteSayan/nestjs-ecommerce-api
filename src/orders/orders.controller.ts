@@ -39,10 +39,14 @@ export class OrdersController {
     return await this.ordersService.findAllByUserId(currentUser);
   }
 
+  @UseGuards(AuthenticationGuard)
   @ApiBearerAuth()
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<OrderEntity> {
-    return await this.ordersService.findOne(+id);
+  async findOne(
+    @Param('id') id: string,
+    @CurrentUser() currentUser: UserEntity,
+  ): Promise<OrderEntity> {
+    return await this.ordersService.findOne(+id, currentUser);
   }
 
   @Patch(':id')

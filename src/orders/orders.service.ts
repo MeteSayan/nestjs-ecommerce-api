@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { UserEntity } from 'src/users/entities/user.entity';
@@ -9,6 +9,7 @@ import { OrdersProductsEntity } from './entities/orders-products.entity';
 import { ShippingEntity } from './entities/shipping.entity';
 import { ProductEntity } from 'src/products/entities/product.entity';
 import { ProductsService } from 'src/products/products.service';
+import { Roles } from 'src/utils/common/user-roles.enum';
 
 @Injectable()
 export class OrdersService {
@@ -52,7 +53,7 @@ export class OrdersService {
       .values(opEntity)
       .execute();
 
-    return await this.findOne(orderReturn.id);
+    return await this.findOne(orderReturn.id, currentUser);
   }
 
   async findAll(): Promise<OrderEntity[]> {
@@ -80,15 +81,35 @@ export class OrdersService {
     });
   }
 
-  async findOne(id: number): Promise<OrderEntity> {
-    return await this.ordersRepository.findOne({
-      where: { id: id },
-      relations: {
-        shippingAddress: true,
-        createdBy: true,
-        products: { product: true },
-      },
-    });
+  async findOne(id: number, currentUser: UserEntity): Promise<OrderEntity> {
+    let order;
+    if (currentUser.roles.includes(Roles.ADMIN)) {
+      order = await this.ordersRepository.findOne({
+        where: { id: id },
+        relations: {
+          shippingAddress: true,
+          createdBy: true,
+          products: { product: true },
+        },
+      });
+    } else {
+      order = await this.ordersRepository.findOne({
+        where: {
+          id: id,
+          createdBy: {
+            id: currentUser.id,
+          },
+        },
+        relations: {
+          shippingAddress: true,
+          createdBy: true,
+          products: { product: true },
+        },
+      });
+    }
+
+    if (!order) throw new NotFoundException('Order Not Found!');
+    return order;
   }
 
   update(id: number, updateOrderDto: UpdateOrderDto) {
