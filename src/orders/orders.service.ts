@@ -153,6 +153,20 @@ export class OrdersService {
     return order;
   }
 
+  async cancelOrder(id: number, currentUser: UserEntity) {
+    let order = await this.findOne(id, currentUser);
+    if (!order) throw new NotFoundException('Order Not Found!');
+
+    if (order.status === OrderStatus.CANCELED) return order;
+
+    order.status = OrderStatus.CANCELED;
+    order.updatedBy = currentUser;
+    order = await this.ordersRepository.save(order);
+
+    await this.updateStock(order, OrderStatus.CANCELED);
+    return order;
+  }
+
   remove(id: number) {
     return `This action removes a #${id} order`;
   }

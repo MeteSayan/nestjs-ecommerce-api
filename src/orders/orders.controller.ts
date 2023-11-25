@@ -60,6 +60,12 @@ export class OrdersController {
     return await this.ordersService.update(+id, updateOrderStatusDto, currentUser);
   }
 
+  @UseGuards(AuthenticationGuard, AuthorizationGuard([Roles.ADMIN]))
+  @Put('cancel/:id')
+  async cancelOrder(@Param('id') id: string, @CurrentUser() currentUser: UserEntity) {
+    return await this.ordersService.cancelOrder(+id, currentUser);
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.ordersService.remove(+id);
