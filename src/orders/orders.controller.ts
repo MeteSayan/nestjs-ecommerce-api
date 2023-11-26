@@ -68,8 +68,8 @@ export class OrdersController {
     return await this.ordersService.cancelOrder(+id, currentUser);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.ordersService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.ordersService.remove(+id);
+  // }
 }

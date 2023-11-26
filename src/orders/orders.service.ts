@@ -183,9 +183,9 @@ export class OrdersService {
     return order;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} order`;
-  }
+  // remove(id: number) {
+  //   return `This action removes a #${id} order`;
+  // }
 
   async updateStock(order: OrderEntity, status: string) {
     for (const op of order.products) {
