@@ -1,6 +1,11 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+  forwardRef,
+} from '@nestjs/common';
 import { CreateReviewDto } from './dto/create-review.dto';
-import { UpdateReviewDto } from './dto/update-review.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ReviewEntity } from './entities/review.entity';
 import { Repository } from 'typeorm';
@@ -13,6 +18,7 @@ export class ReviewsService {
   constructor(
     @InjectRepository(ReviewEntity)
     private reviewRepository: Repository<ReviewEntity>,
+    @Inject(forwardRef(() => ProductsService))
     private productService: ProductsService,
   ) {}
 
@@ -69,6 +75,13 @@ export class ReviewsService {
     } else {
       throw new UnauthorizedException('You are not authorized for this action!');
     }
+  }
+
+  async removeReviewsByProductId(id: number) {
+    const reviews = await this.reviewRepository.find({
+      where: { product: { id: id } },
+    });
+    return await this.reviewRepository.remove(reviews);
   }
 
   async findOneByUserAndProduct(userId: number, productId: number) {

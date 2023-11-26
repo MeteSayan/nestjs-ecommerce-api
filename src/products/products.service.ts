@@ -16,6 +16,7 @@ import { OrderStatus } from 'src/orders/enums/order-status.enum';
 import dataSource from 'db/data-source';
 import { ProductsDto } from './dto/products.dto';
 import { OrdersService } from 'src/orders/orders.service';
+import { ReviewsService } from 'src/reviews/reviews.service';
 
 @Injectable()
 export class ProductsService {
@@ -25,6 +26,8 @@ export class ProductsService {
     private categoriesService: CategoriesService,
     @Inject(forwardRef(() => OrdersService))
     private orderService: OrdersService,
+    @Inject(forwardRef(() => ReviewsService))
+    private reviewsService: ReviewsService,
   ) {}
 
   async create(
@@ -142,6 +145,8 @@ export class ProductsService {
     const product = await this.findOne(id);
     const order = await this.orderService.findOneByProductId(product.id);
     if (order) throw new BadRequestException('Products is in use.');
+
+    await this.reviewsService.removeReviewsByProductId(product.id);
 
     return await this.productRepository.remove(product);
   }

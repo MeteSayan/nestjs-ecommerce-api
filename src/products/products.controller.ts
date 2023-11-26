@@ -89,6 +89,8 @@ export class ProductsController {
     return await this.productsService.update(+id, updateProductDto, currentUser);
   }
 
+  @UseGuards(AuthenticationGuard, AuthorizationGuard([Roles.ADMIN]))
+  @ApiBearerAuth()
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<ProductEntity> {
     return await this.productsService.remove(+id);
