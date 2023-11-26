@@ -7,6 +7,8 @@ import { Repository } from 'typeorm';
 import { CategoriesService } from 'src/categories/categories.service';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { OrderStatus } from 'src/orders/enums/order-status.enum';
+import dataSource from 'db/data-source';
+import { ProductsDto } from './dto/products.dto';
 
 @Injectable()
 export class ProductsService {
@@ -28,8 +30,64 @@ export class ProductsService {
     return await this.productRepository.save(product);
   }
 
-  async findAll(): Promise<ProductEntity[]> {
-    return await this.productRepository.find();
+  async findAll(
+    limit?: number,
+    search?: string,
+    categoryId?: number,
+    minPrice?: number,
+    maxPrice?: number,
+    minRating?: number,
+    maxRating?: number,
+    offset?: number,
+  ): Promise<ProductsDto> {
+    if (!limit) limit = 4;
+
+    const queryBuilder = dataSource
+      .getRepository(ProductEntity)
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.category', 'category')
+      .leftJoin('product.reviews', 'review')
+      .addSelect([
+        'COUNT(review.id) AS reviewCount',
+        'AVG(review.rating)::numeric(10,2) AS avgRating',
+      ])
+      .groupBy('product.id, category.id');
+
+    const totalProducts = await queryBuilder.getCount();
+
+    if (search) {
+      queryBuilder.andWhere('product.title like :title', { title: `%${search}%` });
+    }
+
+    if (categoryId) {
+      queryBuilder.andWhere('category.id=:id', { id: categoryId });
+    }
+
+    if (minPrice) {
+      queryBuilder.andWhere('product.price>=:minPrice', { minPrice: minPrice });
+    }
+
+    if (maxPrice) {
+      queryBuilder.andWhere('product.price<=:maxPrice', { maxPrice: maxPrice });
+    }
+
+    if (minRating) {
+      queryBuilder.andWhere('review.rating>=:minRating', { minRating: minRating });
+    }
+
+    if (maxRating) {
+      queryBuilder.andWhere('review.rating<=:maxRating', { maxRating: maxRating });
+    }
+
+    queryBuilder.limit(limit);
+
+    if (offset) {
+      queryBuilder.offset(offset);
+    }
+
+    const products = await queryBuilder.getRawMany();
+
+    return { products, totalProducts, limit, offset: offset || 0 };
   }
 
   async findOne(id: number): Promise<ProductEntity> {
