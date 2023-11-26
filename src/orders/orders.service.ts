@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+  forwardRef,
+} from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { UserEntity } from 'src/users/entities/user.entity';
@@ -20,6 +26,7 @@ export class OrdersService {
     private ordersRepository: Repository<OrderEntity>,
     @InjectRepository(OrdersProductsEntity)
     private ordersProductsRepository: Repository<OrdersProductsEntity>,
+    @Inject(forwardRef(() => ProductsService))
     private productsService: ProductsService,
   ) {}
 
@@ -112,6 +119,15 @@ export class OrdersService {
 
     if (!order) throw new NotFoundException('Order Not Found!');
     return order;
+  }
+
+  async findOneByProductId(id: number) {
+    return await this.ordersProductsRepository.findOne({
+      where: { product: { id: id } },
+      relations: {
+        product: true,
+      },
+    });
   }
 
   async update(id: number, updateOrderStatusDto: UpdateOrderStatusDto, currentUser: UserEntity) {
